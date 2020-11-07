@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.funs.dao.EmployeeMapper">
+	<resultMap id="BaseResultMap" type="com.funs.domain.Employee">
+		<result column="emp_id" jdbcType="INTEGER" property="empId" />
+		<result column="emp_name" jdbcType="VARCHAR" property="empName" />
+		<result column="gender" jdbcType="CHAR" property="gender" />
+		<result column="email" jdbcType="VARCHAR" property="email" />
+		<result column="d_id" jdbcType="INTEGER" property="dId" />
+	</resultMap>
+	<resultMap id="WithDeptResultMap" type="com.funs.domain.Employee">
+		<result column="emp_id" jdbcType="INTEGER" property="empId" />
+		<result column="emp_name" jdbcType="VARCHAR" property="empName" />
+		<result column="gender" jdbcType="CHAR" property="gender" />
+		<result column="email" jdbcType="VARCHAR" property="email" />
+		<result column="d_id" jdbcType="INTEGER" property="dId" />
+		<!-- association指定联合查询出的部门字段的封装 -->
+		<association property="department"
+			javaType="com.funs.domain.Department">
+			<id column="dept_id" jdbcType="INTEGER" property="deptId" />
+			<result column="dept_name" jdbcType="VARCHAR"
+				property="deptName" />
+		</association>
+	</resultMap>
+	
+	<!-- 查询员工列表带部门信息 -->
+  <select id="selectEmployeeWithDept" resultMap="WithDeptResultMap">
+      select * FROM tbl_emp e
+      LEFT JOIN tbl_dept d ON e.`d_id`=d.`dept_id`
+  </select>
+  
+  <!-- 查询单个员工信息 -->
+  <select id="selectEmployee" resultType="com.funs.domain.Employee">
+     select * FROM tbl_emp where emp_id=#{id}
+  </select>
+  
+  
+  <insert id="insertSelective" parameterType="com.funs.domain.Employee">
+    insert into tbl_emp
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="empId != null">
+        emp_id,
+      </if>
+      <if test="empName != null">
+        emp_name,
+      </if>
+      <if test="gender != null">
+        gender,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="dId != null">
+        d_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="empId != null">
+        #{empId,jdbcType=INTEGER},
+      </if>
+      <if test="empName != null">
+        #{empName,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null">
+        #{gender,jdbcType=CHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="dId != null">
+        #{dId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 更新emp数据 -->
+  <update id="updateEmployee" parameterType="com.funs.domain.Employee"> 
+    	update tbl_emp
+    <trim prefix="set" suffixOverrides=",">
+      <if test="record.empId != null">
+        emp_id = #{record.empId,jdbcType=INTEGER},
+      </if>
+      <if test="record.empName != null">
+        emp_name = #{record.empName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gender != null">
+        gender = #{record.gender,jdbcType=CHAR},
+      </if>
+      <if test="record.email != null">
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dId != null">
+        d_id = #{record.dId,jdbcType=INTEGER},
+      </if>
+    </trim>
+     where emp_id = #{record.empId}
+  </update>
+  
+  
+  <delete id="deleteEmployee" parameterType="Integer">
+       DELETE  FROM tbl_emp WHERE emp_id=#{id}
+  </delete>
+  
+</mapper>
